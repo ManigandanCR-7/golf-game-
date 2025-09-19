@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-physics-system@4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-joystick@latest/dist/aframe-joystick.min.js"></script>
+    <style>
+      /* Joystick positioning (bottom-left) */
+      #joystick {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        z-index: 10;
+      }
+
+      /* Round H button (bottom-right) */
+      #hitButton {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: #ff4081;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        z-index: 10;
+      }
+
+      #hitButton:active {
+        background: #e73370;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene physics="debug: false">
+      
+      <!-- Lighting -->
+      <a-entity light="type: directional; intensity: 1" position="0 5 -3"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+
+      <!-- Camera Rig -->
+      <a-entity id="cameraRig" position="0 1.6 4">
+        <a-camera></a-camera>
+      </a-entity>
+
+      <!-- Floor GLB -->
+      <a-entity id="floor"
+        gltf-model="url(golf_course.glb)"  
+        position="0 0 0"
+        scale="2 2 2"
+        static-body>
+      </a-entity>
+
+      <!-- Ball -->
+      <a-sphere id="ball" radius="0.2" color="white"
+        position="0 0.3 -2"
+        dynamic-body>
+      </a-sphere>
+
+      <!-- Golf Club -->
+      <a-entity id="stick"
+        gltf-model="url(golf_club.glb)"
+        position="0 1 -2.5"
+        scale="0.5 0.5 0.5"
+        rotation="0 0 0"
+        dynamic-body>
+      </a-entity>
+
+      <!-- Hole -->
+      <a-cylinder id="hole" position="0 0.1 -8" radius="0.4" height="0.2" color="black" static-body></a-cylinder>
+
+      <!-- Pointer -->
+      <a-entity id="pointer" line="start: 0 0 -2; end: 0 0 -8; color: yellow"></a-entity>
+
+      <!-- Scoreboard -->
+      <a-entity id="scoreboard" text="value: Score: 0 | Target: 70; color: white; align: center"
+                position="0 2 -3" scale="2 2 2"></a-entity>
+
+    </a-scene>
+
+    <!-- On-Screen Controls -->
+    <div id="joystick"></div>
+    <button id="hitButton">H</button>
+
+    <script>
+      const stick = document.querySelector("#stick");
+      const ball = document.querySelector("#ball");
+      const hole = document.querySelector("#hole");
+      const scoreboard = document.querySelector("#scoreboard");
+      const rig = document.querySelector("#cameraRig");
+
+      let score = 0;
+      const target = 70;
+
+      // 🎮 Swing Action
+      function swingStick() {
+        stick.setAttribute("rotation", "0 0 0");
+        stick.setAttribute("animation__swing", {
+          property: "rotation",
+          to: "-60 0 0",
+          dur: 300,
+          easing: "easeOutQuad",
+          dir: "alternate"
+        });
+      }
+
+      // Mouse click / Tap / Spacebar / H button
+      document.addEventListener("click", swingStick);
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.key === "h" || e.key === "H") swingStick();
+      });
+      document.querySelector("#hitButton").addEventListener("click", swingStick);
+
+      // 🎯 Goal Detection
+      ball.addEventListener("collide", (e) => {
+        if (e.detail.body.el === hole) {
+          score += 10;
+          scoreboard.setAttribute("text", "value", `Score: ${score} | Target: ${target}`);
+
+          if (score >= target) {
+            alert("🎉 You've set a new high score! 🎊");
+          }
+        }
+      });
+
+      // 🕹️ Virtual Joystick
+      const joystick = new Joystick({
+        zone: document.getElementById("joystick"),
+        mode: "static",
+        position: { left: "60px", bottom: "60px" },
+        color: "white"
+      });
+
+      joystick.on("move", (evt, data) => {
+        if (data.vector) {
+          rig.object3D.position.x += data.vector.x * 0.1;
+          rig.object3D.position.z += data.vector.y * 0.1;
+        }
+      });
+    </script>
+  </body>
+</html>
