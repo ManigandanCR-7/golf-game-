@@ -78,10 +78,14 @@
     <!-- Hit button -->
     <button id="hitButton">H</button>
 
+    <!-- Audio for hit -->
+    <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
+
     <script>
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
       const scoreboardHUD = document.querySelector("#scoreboardHUD");
+      const hitSound = document.querySelector("#hitSound");
 
       let score = 0;
       const target = 80;
@@ -100,6 +104,10 @@
       }
 
       function hitBall() {
+        // Play hit sound immediately
+        hitSound.currentTime = 0;
+        hitSound.play();
+
         // Reset animations first
         ball.removeAttribute("animation__move");
         ball.removeAttribute("animation__rotate");
@@ -152,4 +160,3 @@
     </script>
   </body>
 </html>
-
