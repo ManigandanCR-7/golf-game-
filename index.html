@@ -55,8 +55,13 @@
         <a-camera></a-camera>
       </a-entity>
 
-      <!-- Floor replaced by GLTF model -->
-      <a-entity id="floor" gltf-model="#floorModel" position="0 0 0" rotation="-90 0 0" scale="1 1 1"></a-entity>
+<!-- Floor replaced by GLTF model, aligned properly -->
+<a-entity id="floor" 
+          gltf-model="#floorModel" 
+          position="0 0 0"        <!-- adjust height if needed -->
+          rotation="-90 0 0"      <!-- lay flat horizontally -->
+          scale="5 5 5">          <!-- scale to cover scene area -->
+</a-entity>
 
       <!-- Sky -->
       <a-sky color="#87CEEB"></a-sky>
@@ -156,4 +161,5 @@
     </script>
   </body>
 </html>
+
 
