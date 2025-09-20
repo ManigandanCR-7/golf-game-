@@ -78,14 +78,16 @@
     <!-- Hit button -->
     <button id="hitButton">H</button>
 
-    <!-- Audio for hit -->
+    <!-- Audio for hit and target -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
+    <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio> <!-- target music -->
 
     <script>
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
       const scoreboardHUD = document.querySelector("#scoreboardHUD");
       const hitSound = document.querySelector("#hitSound");
+      const targetSound = document.querySelector("#targetSound"); // victory music
 
       let score = 0;
       const target = 80;
@@ -144,6 +146,10 @@
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
+            // Play target victory music
+            targetSound.currentTime = 0;
+            targetSound.play();
+
             alert("🎉 You've reached the target of 80 points! 🎊");
             resetScene(); // Reset after win too
           } else {
