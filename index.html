@@ -47,6 +47,8 @@
         padding: 10px 20px;
         border-radius: 8px;
         z-index: 10;
+        opacity: 0;
+        transition: opacity 0.5s ease;
       }
 
       /* Simple joystick container */
@@ -134,6 +136,10 @@
       <div id="joystick"></div>
     </div>
 
+    <!-- Add this inside your <body> along with existing audios -->
+    <audio id="scoreSound" src="nice-shot-wii-sports_DJJ0VOz.mp3" preload="auto"></audio>
+
+
     <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
     <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
@@ -150,8 +156,23 @@
       let score = 0;
       const target = 80;
 
+      // Check if user has already seen instructions
+      let instructionsSeen = localStorage.getItem('instructionsSeen') === 'true';
+
+      function showInstruction(text) {
+        if (!instructionsSeen) {
+          instruction.textContent = text;
+          instruction.style.opacity = 1;
+        }
+      }
+
+      function fadeInstruction() {
+        instruction.style.opacity = 0;
+      }
+
       stick.addEventListener("model-loaded", () => {
         console.log("✅ Golf stick model loaded successfully!");
+        if(!instructionsSeen) showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
       });
 
       function resetScene() {
@@ -178,7 +199,6 @@
           easing: "easeOutQuad"
         });
 
-        // Ball movement now goes farther to match new hole distance
         ball.setAttribute("animation__move", {
           property: "position",
           to: "0 0.3 -20",
@@ -193,23 +213,26 @@
           easing: "linear"
         });
 
-        // Step instruction changes
-        setTimeout(() => {
-          instruction.textContent = "Step 2: Use the joystick on the left to move your player view.";
-        }, 500); // short delay after first hit instruction
+        // Fade instruction after first action
+        if(!instructionsSeen){
+          setTimeout(fadeInstruction, 1000); // fade 1 sec after hitting
+          localStorage.setItem('instructionsSeen', 'true');
+          instructionsSeen = true;
+        }
 
         setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
-            // Play victory immediately
             targetSound.currentTime = 0;
             targetSound.play();
-
             alert("🎉 You've reached the target of 80 points! 🎊");
             resetScene();
-            instruction.textContent = "Step 1: Click 'H' button or press H key to hit the golf ball.";
+            // reset instruction for new session if desired
+            if(!instructionsSeen){
+              showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
+            }
           } else {
             resetScene();
           }
@@ -220,6 +243,29 @@
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
       document.querySelector("#hitButton").addEventListener("click", hitBall);
+
+
+      const scoreSound = document.getElementById("scoreSound");
+
+setTimeout(() => {
+  score += 20;
+
+  // Play score increment sound
+  scoreSound.currentTime = 0;
+  scoreSound.play();
+
+  scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
+
+  if (score >= target) {
+    targetSound.currentTime = 0;
+    targetSound.play();
+    alert("🎉 You've reached the target of 80 points! 🎊");
+    resetScene();
+  } else {
+    resetScene();
+  }
+}, 3100);
+
 
       // -----------------------------
       // Joystick movement logic
