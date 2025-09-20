@@ -1,0 +1,179 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      /* Hit button */
+      #hitButton {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: #ff4081;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        z-index: 10;
+      }
+      #hitButton:active { background: #e73370; }
+
+      /* Scoreboard (HUD top-left corner) */
+      #scoreboardHUD {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 8px 12px;
+        border-radius: 8px;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HUD scoreboard -->
+    <div id="scoreboardHUD">Score: 0 | Target: 80</div>
+
+    <a-scene embedded>
+      <!-- Assets -->
+      <a-assets>
+        <a-asset-item id="golfstick" src="stick.gltf"></a-asset-item>
+        <a-asset-item id="floorModel" src="floor gold.gltf"></a-asset-item> <!-- new floor model -->
+      </a-assets>
+
+      <!-- Lighting -->
+      <a-entity light="type: directional; intensity: 1" position="0 5 -3"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+
+      <!-- Camera -->
+      <a-entity id="cameraRig" position="0 1.6 4">
+        <a-camera></a-camera>
+      </a-entity>
+
+<!-- Floor replaced by GLTF model, aligned properly -->
+<a-entity id="floor" 
+          gltf-model="#floorModel" 
+          position="0 10 0"       
+          rotation="0 0 0"      
+          scale="9 9 9 ">          <!-- scale to cover scene area -->
+</a-entity>
+
+      <!-- Sky -->
+      <a-sky color="#87CEEB"></a-sky>
+
+      <!-- Ball -->
+      <a-sphere id="ball" radius="0.4" color="white" position="0 0.3 -2"></a-sphere>
+
+      <!-- Hole -->
+      <a-cylinder id="hole" position="0 0.1 -8" radius="0.8" height="0.2" color="black"></a-cylinder>
+
+      <!-- Stick (GLTF model) -->
+      <a-entity id="stick"
+        gltf-model="#golfstick" 
+        position="0 0.3 -1.6"
+        scale="7.5 6.5 4.5"
+        rotation="0 0 0">
+      </a-entity>
+    </a-scene>
+
+    <!-- Hit button -->
+    <button id="hitButton">H</button>
+
+    <!-- Audio for hit and target -->
+    <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
+    <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
+
+    <script>
+      const ball = document.querySelector("#ball");
+      const stick = document.querySelector("#stick");
+      const scoreboardHUD = document.querySelector("#scoreboardHUD");
+      const hitSound = document.querySelector("#hitSound");
+      const targetSound = document.querySelector("#targetSound");
+
+      let score = 0;
+      const target = 80;
+
+      stick.addEventListener("model-loaded", () => {
+        console.log("✅ Golf stick model loaded successfully!");
+      });
+
+      function resetScene() {
+        ball.setAttribute("position", "0 0.3 -2");
+        ball.setAttribute("rotation", "0 0 0");
+        stick.setAttribute("position", "0 0.3 -1.6");
+        stick.setAttribute("rotation", "0 0 0");
+      }
+
+      function hitBall() {
+        hitSound.currentTime = 0;
+        hitSound.play();
+
+        ball.removeAttribute("animation__move");
+        ball.removeAttribute("animation__rotate");
+        stick.removeAttribute("animation__swing");
+
+        stick.setAttribute("animation__swing", {
+          property: "position",
+          to: "0 0.3 -2.2",
+          dur: 300,
+          dir: "alternate",
+          easing: "easeOutQuad"
+        });
+
+        ball.setAttribute("animation__move", {
+          property: "position",
+          to: "0 0.3 -8",
+          dur: 1500,
+          easing: "easeOutQuad"
+        });
+
+        ball.setAttribute("animation__rotate", {
+          property: "rotation",
+          to: "720 0 0",
+          dur: 1500,
+          easing: "linear"
+        });
+
+        setTimeout(() => {
+          score += 20;
+          scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
+
+          if (score >= target) {
+            targetSound.currentTime = 0;
+            targetSound.play();
+            alert("🎉 You've reached the target of 80 points! 🎊");
+            resetScene();
+          } else {
+            resetScene();
+          }
+        }, 1600);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
+      });
+      document.querySelector("#hitButton").addEventListener("click", hitBall);
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
