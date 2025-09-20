@@ -136,13 +136,15 @@
       <div id="joystick"></div>
     </div>
 
-    <audio id="scoreSound" src="nice-shot-wii-sports_DJJ0VOz.mp3" preload="auto"></audio>
+
 
     <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
+    <audio id="secondarySound" src="nice-shot-wii-sports_DJJ0VOz.mp3" preload="auto"></audio>
     <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
 
     <script>
+
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
       const cameraRig = document.querySelector("#cameraRig");
@@ -218,33 +220,27 @@
           instructionsSeen = true;
         }
 
-        setTimeout(() => {
-  score += 20;
-  scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
-  // Play the score increment sound here
-  const scoreSound = document.getElementById("scoreSound");
-  scoreSound.currentTime = 0;
-  scoreSound.play();
+  setTimeout(() => {
+          score += 20;
+          scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
-  if (score >= target) {
-    targetSound.currentTime = 0;
-    targetSound.play();
-    alert("🎉 You've reached the target of 80 points! 🎊");
-    resetScene();
-  } else {
-    resetScene();
-  }
-}, 3100);
+          if (score >= target) {
+            targetSound.currentTime = 0;
+            targetSound.play();
+            alert("🎉 You've reached the target of 80 points! 🎊");
+            resetScene();
+          } else {
+            resetScene();
+          }
+        }, 3100); // slightly longer timeout to match ball animation
+      }
 
 
       document.addEventListener("keydown", (e) => {
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
       document.querySelector("#hitButton").addEventListener("click", hitBall);
-
-
-      
 
 
       // -----------------------------
@@ -289,6 +285,27 @@
         setJoystickPosition(0,0);
       });
     </script>
+
+    <script>
+  const hitSound = document.getElementById("hitSound");
+  const secondarySound = document.getElementById("secondarySound");
+
+  function playHitWithDelay() {
+    // Play the original hit sound
+    hitSound.currentTime = 0;
+    hitSound.play();
+
+    // Play another sound after 2 seconds
+    setTimeout(() => {
+      secondarySound.currentTime = 0;
+      secondarySound.play();
+    }, 2000); // 2000 ms = 2 seconds
+  }
+
+  // Example usage: trigger when clicking the hit button
+  document.getElementById("hitButton").addEventListener("click", playHitWithDelay);
+</script>
   </body>
 </html>
+
 
