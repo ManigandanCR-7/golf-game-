@@ -43,6 +43,7 @@
       <!-- Assets -->
       <a-assets>
         <a-asset-item id="golfstick" src="stick.gltf"></a-asset-item>
+        <a-asset-item id="floorModel" src="floor gold.gltf"></a-asset-item> <!-- new floor model -->
       </a-assets>
 
       <!-- Lighting -->
@@ -54,8 +55,8 @@
         <a-camera></a-camera>
       </a-entity>
 
-      <!-- Floor -->
-      <a-plane rotation="-90 0 0" width="20" height="40" color="#4CAF50"></a-plane>
+      <!-- Floor replaced by GLTF model -->
+      <a-entity id="floor" gltf-model="#floorModel" position="0 0 0" rotation="-90 0 0" scale="1 1 1"></a-entity>
 
       <!-- Sky -->
       <a-sky color="#87CEEB"></a-sky>
@@ -80,25 +81,23 @@
 
     <!-- Audio for hit and target -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
-    <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio> <!-- target music -->
+    <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
 
     <script>
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
       const scoreboardHUD = document.querySelector("#scoreboardHUD");
       const hitSound = document.querySelector("#hitSound");
-      const targetSound = document.querySelector("#targetSound"); // victory music
+      const targetSound = document.querySelector("#targetSound");
 
       let score = 0;
       const target = 80;
 
-      // Confirm model load
       stick.addEventListener("model-loaded", () => {
         console.log("✅ Golf stick model loaded successfully!");
       });
 
       function resetScene() {
-        // Reset ball & stick
         ball.setAttribute("position", "0 0.3 -2");
         ball.setAttribute("rotation", "0 0 0");
         stick.setAttribute("position", "0 0.3 -1.6");
@@ -106,16 +105,13 @@
       }
 
       function hitBall() {
-        // Play hit sound immediately
         hitSound.currentTime = 0;
         hitSound.play();
 
-        // Reset animations first
         ball.removeAttribute("animation__move");
         ball.removeAttribute("animation__rotate");
         stick.removeAttribute("animation__swing");
 
-        // Animate stick swing
         stick.setAttribute("animation__swing", {
           property: "position",
           to: "0 0.3 -2.2",
@@ -124,7 +120,6 @@
           easing: "easeOutQuad"
         });
 
-        // Animate ball movement
         ball.setAttribute("animation__move", {
           property: "position",
           to: "0 0.3 -8",
@@ -132,7 +127,6 @@
           easing: "easeOutQuad"
         });
 
-        // Animate ball rolling
         ball.setAttribute("animation__rotate", {
           property: "rotation",
           to: "720 0 0",
@@ -140,25 +134,21 @@
           easing: "linear"
         });
 
-        // After animation → update score + reset ball for next hit
         setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
-            // Play target victory music
             targetSound.currentTime = 0;
             targetSound.play();
-
             alert("🎉 You've reached the target of 80 points! 🎊");
-            resetScene(); // Reset after win too
+            resetScene();
           } else {
-            resetScene(); // Always reset for next try
+            resetScene();
           }
         }, 1600);
       }
 
-      // Hit using Space, H, or Button
       document.addEventListener("keydown", (e) => {
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
@@ -166,3 +156,4 @@
     </script>
   </body>
 </html>
+
