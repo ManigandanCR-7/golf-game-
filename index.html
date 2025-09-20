@@ -34,29 +34,29 @@
         z-index: 10;
       }
 
-      /* Joystick container */
+      /* Simple joystick container */
       #joystickContainer {
         position: absolute;
         bottom: 30px;
         left: 30px;
-        width: 120px;
-        height: 120px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
+        width: 100px;
+        height: 100px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 10;
+        background: rgba(255,255,255,0.1);
       }
 
-      /* Joystick knob */
+      /* Inner joystick knob */
       #joystick {
-        width: 60px;
-        height: 60px;
+        width: 40px;
+        height: 40px;
         background: white;
         border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         position: relative;
         touch-action: none;
       }
@@ -85,7 +85,7 @@
       <!-- Floor replaced with GLTF model, rotated 90° -->
       <a-entity id="floor" 
                 gltf-model="#floorModel" 
-                position="0 -4 0"       
+                position="0 -3.7 0"       
                 rotation="0 90 0"      
                 scale="9 9 9">
       </a-entity>
@@ -111,7 +111,7 @@
     <!-- Hit button -->
     <button id="hitButton">H</button>
 
-    <!-- Overlay joystick -->
+    <!-- Minimal joystick -->
     <div id="joystickContainer">
       <div id="joystick"></div>
     </div>
@@ -194,7 +194,7 @@
       document.querySelector("#hitButton").addEventListener("click", hitBall);
 
       // -----------------------------
-      // Joystick movement logic
+      // Simple joystick logic
       // -----------------------------
       const joystickContainer = document.getElementById("joystickContainer");
       const joystick = document.getElementById("joystick");
@@ -220,25 +220,20 @@
 
         setJoystickPosition(dx, dy);
 
-        // Move camera rig accordingly
+        // Move camera rig according to joystick
         const speed = 0.05;
         cameraRig.object3D.position.x += dx / maxRadius * speed;
         cameraRig.object3D.position.z += -dy / maxRadius * speed;
       }
 
-      joystick.addEventListener("pointerdown", (e)=>{
-        dragging = true;
-      });
+      joystick.addEventListener("pointerdown", ()=>{ dragging = true; });
       document.addEventListener("pointermove", (e)=>{
         if(dragging) handleMove(e.clientX, e.clientY);
       });
       document.addEventListener("pointerup", ()=>{
         dragging = false;
-        // Reset joystick to center
         setJoystickPosition(0,0);
       });
     </script>
   </body>
 </html>
-
-
