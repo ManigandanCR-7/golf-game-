@@ -33,6 +33,33 @@
         border-radius: 8px;
         z-index: 10;
       }
+
+      /* Joystick container */
+      #joystickContainer {
+        position: absolute;
+        bottom: 30px;
+        left: 30px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      /* Joystick knob */
+      #joystick {
+        width: 60px;
+        height: 60px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        position: relative;
+        touch-action: none;
+      }
     </style>
   </head>
   <body>
@@ -58,7 +85,7 @@
       <!-- Floor replaced with GLTF model, rotated 90° -->
       <a-entity id="floor" 
                 gltf-model="#floorModel" 
-                position="0 0 0"       
+                position="0 6 0"       
                 rotation="0 90 0"      
                 scale="9 9 9">
       </a-entity>
@@ -84,6 +111,11 @@
     <!-- Hit button -->
     <button id="hitButton">H</button>
 
+    <!-- Overlay joystick -->
+    <div id="joystickContainer">
+      <div id="joystick"></div>
+    </div>
+
     <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
     <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
@@ -91,6 +123,7 @@
     <script>
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
+      const cameraRig = document.querySelector("#cameraRig");
       const scoreboardHUD = document.querySelector("#scoreboardHUD");
       const hitSound = document.querySelector("#hitSound");
       const targetSound = document.querySelector("#targetSound");
@@ -107,10 +140,10 @@
         ball.setAttribute("rotation", "0 0 0");
         stick.setAttribute("position", "0 0.3 -1.6");
         stick.setAttribute("rotation", "0 0 0");
+        cameraRig.setAttribute("position", "0 1.6 4");
       }
 
       function hitBall() {
-        // Play hit sound immediately
         hitSound.currentTime = 0;
         hitSound.play();
 
@@ -118,7 +151,6 @@
         ball.removeAttribute("animation__rotate");
         stick.removeAttribute("animation__swing");
 
-        // Stick swing animation
         stick.setAttribute("animation__swing", {
           property: "position",
           to: "0 0.3 -2.2",
@@ -127,7 +159,6 @@
           easing: "easeOutQuad"
         });
 
-        // Ball movement animation
         ball.setAttribute("animation__move", {
           property: "position",
           to: "0 0.3 -8",
@@ -135,7 +166,6 @@
           easing: "easeOutQuad"
         });
 
-        // Ball rotation
         ball.setAttribute("animation__rotate", {
           property: "rotation",
           to: "720 0 0",
@@ -143,16 +173,13 @@
           easing: "linear"
         });
 
-        // After animation → update score
         setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
-            // Play target music instantly
             targetSound.currentTime = 0;
             targetSound.play();
-
             alert("🎉 You've reached the target of 80 points! 🎊");
             resetScene();
           } else {
@@ -161,12 +188,55 @@
         }, 1600);
       }
 
-      // Hit controls
       document.addEventListener("keydown", (e) => {
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
       document.querySelector("#hitButton").addEventListener("click", hitBall);
+
+      // -----------------------------
+      // Joystick movement logic
+      // -----------------------------
+      const joystickContainer = document.getElementById("joystickContainer");
+      const joystick = document.getElementById("joystick");
+      let dragging = false;
+      let centerX = joystickContainer.offsetWidth/2;
+      let centerY = joystickContainer.offsetHeight/2;
+      let maxRadius = joystickContainer.offsetWidth/2 - joystick.offsetWidth/2;
+
+      function setJoystickPosition(x, y){
+        joystick.style.transform = `translate(${x}px, ${y}px)`;
+      }
+
+      function handleMove(clientX, clientY){
+        const rect = joystickContainer.getBoundingClientRect();
+        let dx = clientX - rect.left - centerX;
+        let dy = clientY - rect.top - centerY;
+
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist > maxRadius){
+          dx = dx / dist * maxRadius;
+          dy = dy / dist * maxRadius;
+        }
+
+        setJoystickPosition(dx, dy);
+
+        // Move camera rig accordingly
+        const speed = 0.05;
+        cameraRig.object3D.position.x += dx / maxRadius * speed;
+        cameraRig.object3D.position.z += -dy / maxRadius * speed;
+      }
+
+      joystick.addEventListener("pointerdown", (e)=>{
+        dragging = true;
+      });
+      document.addEventListener("pointermove", (e)=>{
+        if(dragging) handleMove(e.clientX, e.clientY);
+      });
+      document.addEventListener("pointerup", ()=>{
+        dragging = false;
+        // Reset joystick to center
+        setJoystickPosition(0,0);
+      });
     </script>
   </body>
 </html>
-
