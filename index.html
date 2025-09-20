@@ -34,6 +34,21 @@
         z-index: 10;
       }
 
+      /* Instruction display */
+      #instruction {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        background: rgba(0,0,0,0.6);
+        padding: 10px 20px;
+        border-radius: 8px;
+        z-index: 10;
+      }
+
       /* Simple joystick container */
       #joystickContainer {
         position: absolute;
@@ -63,6 +78,9 @@
     </style>
   </head>
   <body>
+    <!-- Instruction display -->
+    <div id="instruction">Step 1: Click "H" button or press H key to hit the golf ball.</div>
+
     <!-- HUD scoreboard -->
     <div id="scoreboardHUD">Score: 0 | Target: 80</div>
 
@@ -125,6 +143,7 @@
       const stick = document.querySelector("#stick");
       const cameraRig = document.querySelector("#cameraRig");
       const scoreboardHUD = document.querySelector("#scoreboardHUD");
+      const instruction = document.getElementById("instruction");
       const hitSound = document.querySelector("#hitSound");
       const targetSound = document.querySelector("#targetSound");
 
@@ -163,30 +182,38 @@
         ball.setAttribute("animation__move", {
           property: "position",
           to: "0 0.3 -20",
-          dur: 3000,  // longer duration for farther travel
+          dur: 3000,
           easing: "easeOutQuad"
         });
 
         ball.setAttribute("animation__rotate", {
           property: "rotation",
-          to: "1440 0 0", // faster spin for longer travel
+          to: "1440 0 0",
           dur: 3000,
           easing: "linear"
         });
+
+        // Step instruction changes
+        setTimeout(() => {
+          instruction.textContent = "Step 2: Use the joystick on the left to move your player view.";
+        }, 500); // short delay after first hit instruction
 
         setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
+            // Play victory immediately
             targetSound.currentTime = 0;
             targetSound.play();
+
             alert("🎉 You've reached the target of 80 points! 🎊");
             resetScene();
+            instruction.textContent = "Step 1: Click 'H' button or press H key to hit the golf ball.";
           } else {
             resetScene();
           }
-        }, 3100); // slightly longer timeout to match ball animation
+        }, 3100);
       }
 
       document.addEventListener("keydown", (e) => {
@@ -224,7 +251,7 @@
         // Free movement with forward/backward corrected
         const speed = 0.05;
         cameraRig.object3D.position.x += dx / maxRadius * speed;
-        cameraRig.object3D.position.z += dy / maxRadius * speed; // forward/backward corrected
+        cameraRig.object3D.position.z += dy / maxRadius * speed;
       }
 
       joystick.addEventListener("pointerdown", ()=>{ dragging = true; });
@@ -238,4 +265,3 @@
     </script>
   </body>
 </html>
-
