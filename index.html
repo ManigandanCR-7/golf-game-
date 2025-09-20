@@ -137,7 +137,6 @@
     </div>
 
 
-
     <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
     <audio id="secondarySound" src="nice-shot-wii-sports_DJJ0VOz.mp3" preload="auto"></audio>
@@ -242,7 +241,23 @@
       });
       document.querySelector("#hitButton").addEventListener("click", hitBall);
 
+const hitSound = document.getElementById("hitSound");
+const secondarySound = document.getElementById("secondarySound");
 
+  function playHitWithDelay() {
+    // Play the original hit sound
+    hitSound.currentTime = 0;
+    hitSound.play();
+
+    // Play another sound after 2 seconds
+    setTimeout(() => {
+      secondarySound.currentTime = 0;
+      secondarySound.play();
+    }, 2000); // 2000 ms = 2 seconds
+  }
+
+  // Example usage: trigger when clicking the hit button
+  document.getElementById("hitButton").addEventListener("click", playHitWithDelay);
       // -----------------------------
       // Joystick movement logic
       // -----------------------------
@@ -286,26 +301,9 @@
       });
     </script>
 
-    <script>
-  const hitSound = document.getElementById("hitSound");
-  const secondarySound = document.getElementById("secondarySound");
-
-  function playHitWithDelay() {
-    // Play the original hit sound
-    hitSound.currentTime = 0;
-    hitSound.play();
-
-    // Play another sound after 2 seconds
-    setTimeout(() => {
-      secondarySound.currentTime = 0;
-      secondarySound.play();
-    }, 2000); // 2000 ms = 2 seconds
-  }
-
-  // Example usage: trigger when clicking the hit button
-  document.getElementById("hitButton").addEventListener("click", playHitWithDelay);
-</script>
+  
   </body>
 </html>
+
 
 
