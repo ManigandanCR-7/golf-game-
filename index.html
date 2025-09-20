@@ -43,7 +43,7 @@
       <!-- Assets -->
       <a-assets>
         <a-asset-item id="golfstick" src="stick.gltf"></a-asset-item>
-        <a-asset-item id="floorModel" src="floor gold.gltf"></a-asset-item> <!-- new floor model -->
+        <a-asset-item id="floorModel" src="floor gold.gltf"></a-asset-item>
       </a-assets>
 
       <!-- Lighting -->
@@ -55,13 +55,13 @@
         <a-camera></a-camera>
       </a-entity>
 
-<!-- Floor replaced by GLTF model, aligned properly -->
-<a-entity id="floor" 
-          gltf-model="#floorModel" 
-          position="0 10 0"       
-          rotation="0 0 0"      
-          scale="9 9 9 ">          <!-- scale to cover scene area -->
-</a-entity>
+      <!-- Floor replaced with GLTF model, rotated 90° -->
+      <a-entity id="floor" 
+                gltf-model="#floorModel" 
+                position="0 0 0"       
+                rotation="0 90 0"      
+                scale="9 9 9">
+      </a-entity>
 
       <!-- Sky -->
       <a-sky color="#87CEEB"></a-sky>
@@ -84,7 +84,7 @@
     <!-- Hit button -->
     <button id="hitButton">H</button>
 
-    <!-- Audio for hit and target -->
+    <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
     <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
 
@@ -110,6 +110,7 @@
       }
 
       function hitBall() {
+        // Play hit sound immediately
         hitSound.currentTime = 0;
         hitSound.play();
 
@@ -117,6 +118,7 @@
         ball.removeAttribute("animation__rotate");
         stick.removeAttribute("animation__swing");
 
+        // Stick swing animation
         stick.setAttribute("animation__swing", {
           property: "position",
           to: "0 0.3 -2.2",
@@ -125,6 +127,7 @@
           easing: "easeOutQuad"
         });
 
+        // Ball movement animation
         ball.setAttribute("animation__move", {
           property: "position",
           to: "0 0.3 -8",
@@ -132,6 +135,7 @@
           easing: "easeOutQuad"
         });
 
+        // Ball rotation
         ball.setAttribute("animation__rotate", {
           property: "rotation",
           to: "720 0 0",
@@ -139,13 +143,16 @@
           easing: "linear"
         });
 
+        // After animation → update score
         setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
+            // Play target music instantly
             targetSound.currentTime = 0;
             targetSound.play();
+
             alert("🎉 You've reached the target of 80 points! 🎊");
             resetScene();
           } else {
@@ -154,6 +161,7 @@
         }, 1600);
       }
 
+      // Hit controls
       document.addEventListener("keydown", (e) => {
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
@@ -161,20 +169,4 @@
     </script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
