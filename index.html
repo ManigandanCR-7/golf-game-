@@ -136,9 +136,7 @@
       <div id="joystick"></div>
     </div>
 
-    <!-- Add this inside your <body> along with existing audios -->
     <audio id="scoreSound" src="nice-shot-wii-sports_DJJ0VOz.mp3" preload="auto"></audio>
-
 
     <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
@@ -221,40 +219,13 @@
         }
 
         setTimeout(() => {
-          score += 20;
-          scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
-
-          if (score >= target) {
-            targetSound.currentTime = 0;
-            targetSound.play();
-            alert("🎉 You've reached the target of 80 points! 🎊");
-            resetScene();
-            // reset instruction for new session if desired
-            if(!instructionsSeen){
-              showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
-            }
-          } else {
-            resetScene();
-          }
-        }, 3100);
-      }
-
-      document.addEventListener("keydown", (e) => {
-        if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
-      });
-      document.querySelector("#hitButton").addEventListener("click", hitBall);
-
-
-      const scoreSound = document.getElementById("scoreSound");
-
-setTimeout(() => {
   score += 20;
+  scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
-  // Play score increment sound
+  // Play the score increment sound here
+  const scoreSound = document.getElementById("scoreSound");
   scoreSound.currentTime = 0;
   scoreSound.play();
-
-  scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
   if (score >= target) {
     targetSound.currentTime = 0;
@@ -265,6 +236,15 @@ setTimeout(() => {
     resetScene();
   }
 }, 3100);
+
+
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
+      });
+      document.querySelector("#hitButton").addEventListener("click", hitBall);
+
+
+      
 
 
       // -----------------------------
@@ -311,3 +291,4 @@ setTimeout(() => {
     </script>
   </body>
 </html>
+
