@@ -143,10 +143,7 @@
       }
 
       @keyframes fadeOutIntro {
-        to {
-          opacity: 0;
-          pointer-events: none;
-        }
+        to { opacity: 0; pointer-events: none; }
       }
     </style>
   </head>
@@ -226,8 +223,7 @@
 
       let score = 0;
       const target = 80;
-
-      let instructionsSeen = localStorage.getItem('instructionsSeen') === 'true';
+      let instructionsSeen = localStorage.getItem("instructionsSeen") === "true";
 
       function showInstruction(text) {
         if (!instructionsSeen) {
@@ -241,7 +237,8 @@
       }
 
       stick.addEventListener("model-loaded", () => {
-        if(!instructionsSeen) showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
+        if (!instructionsSeen)
+          showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
       });
 
       function resetScene() {
@@ -255,6 +252,13 @@
       function hitBall() {
         hitSound.currentTime = 0;
         hitSound.play();
+
+        // 🔥 FIX — remove previous animations so they replay
+        ball.removeAttribute("animation__move");
+        ball.removeAttribute("animation__rotate");
+        stick.removeAttribute("animation__swing");
+
+        void ball.offsetWidth; // force reflow
 
         stick.setAttribute("animation__swing", {
           property: "position",
@@ -278,9 +282,9 @@
           easing: "linear"
         });
 
-        if(!instructionsSeen){
+        if (!instructionsSeen) {
           setTimeout(fadeInstruction, 1000);
-          localStorage.setItem('instructionsSeen', 'true');
+          localStorage.setItem("instructionsSeen", "true");
           instructionsSeen = true;
         }
 
@@ -289,10 +293,12 @@
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
+            targetSound.currentTime = 0;
             targetSound.play();
             alert("🎉 You've reached the target of 80 points!");
-            resetScene();
-          } else resetScene();
+          }
+
+          resetScene();
         }, 3100);
       }
 
@@ -332,10 +338,9 @@
       document.addEventListener("pointermove", e => dragging && handleMove(e.clientX, e.clientY));
       document.addEventListener("pointerup", () => {
         dragging = false;
-        setJoystickPosition(0,0);
+        setJoystickPosition(0, 0);
       });
 
-      // Remove intro overlay safely
       setTimeout(() => {
         const intro = document.getElementById("introOverlay");
         if (intro) intro.remove();
