@@ -77,9 +77,95 @@
         position: relative;
         touch-action: none;
       }
+
+      /* ================= INTRO OVERLAY ================= */
+
+      #introOverlay {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at center, #0a0a0a, #000);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeOutIntro 1.2s ease forwards;
+        animation-delay: 5.5s;
+      }
+
+      .intro-content {
+        text-align: center;
+        color: white;
+        animation: scaleIn 1.4s ease forwards;
+      }
+
+      .intro-title {
+        font-size: 48px;
+        letter-spacing: 6px;
+        font-weight: 700;
+      }
+
+      .intro-subtitle {
+        font-size: 28px;
+        margin-top: 6px;
+        color: #ff4081;
+        letter-spacing: 4px;
+      }
+
+      .intro-tagline {
+        margin-top: 14px;
+        font-size: 16px;
+        opacity: 0.85;
+      }
+
+      .loader {
+        width: 220px;
+        height: 6px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 28px auto 0;
+      }
+
+      .loader-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff4081, #ff7eb3);
+        animation: loadingBar 5s ease forwards;
+      }
+
+      @keyframes loadingBar {
+        to { width: 100%; }
+      }
+
+      @keyframes scaleIn {
+        from { transform: scale(0.85); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+
+      @keyframes fadeOutIntro {
+        to {
+          opacity: 0;
+          pointer-events: none;
+        }
+      }
     </style>
   </head>
+
   <body>
+
+    <!-- INTRO OVERLAY -->
+    <div id="introOverlay">
+      <div class="intro-content">
+        <h1 class="intro-title">NILOFER</h1>
+        <h2 class="intro-subtitle">3D SAAS</h2>
+        <p class="intro-tagline">Immersive 3D Experiences</p>
+
+        <div class="loader">
+          <div class="loader-bar"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Instruction display -->
     <div id="instruction">Step 1: Click "H" button or press H key to hit the golf ball.</div>
 
@@ -87,62 +173,49 @@
     <div id="scoreboardHUD">Score: 0 | Target: 80</div>
 
     <a-scene embedded>
-      <!-- Assets -->
       <a-assets>
         <a-asset-item id="golfstick" src="stick.gltf"></a-asset-item>
         <a-asset-item id="floorModel" src="floor gold.gltf"></a-asset-item>
       </a-assets>
 
-      <!-- Lighting -->
       <a-entity light="type: directional; intensity: 1" position="0 5 -3"></a-entity>
       <a-entity light="type: ambient; intensity: 0.8"></a-entity>
 
-      <!-- Camera -->
       <a-entity id="cameraRig" position="0 3.4 4">
         <a-camera></a-camera>
       </a-entity>
 
-      <!-- Floor replaced with GLTF model, rotated 90° -->
-      <a-entity id="floor" 
-                gltf-model="#floorModel" 
-                position="0 -3.5 0"       
-                rotation="0 90 0"      
-                scale="9 9 9">
+      <a-entity id="floor"
+        gltf-model="#floorModel"
+        position="0 -3.5 0"
+        rotation="0 90 0"
+        scale="9 9 9">
       </a-entity>
 
-      <!-- Sky -->
       <a-sky color="#87CEEB"></a-sky>
 
-      <!-- Ball -->
       <a-sphere id="ball" radius="0.4" color="white" position="0 0.3 -2"></a-sphere>
 
-      <!-- Hole (moved farther) -->
       <a-cylinder id="hole" position="0 0.1 -20" radius="0.8" height="0.2" color="black"></a-cylinder>
 
-      <!-- Stick (GLTF model) -->
       <a-entity id="stick"
-        gltf-model="#golfstick" 
+        gltf-model="#golfstick"
         position="0 0.1 -1.6"
         scale="7.5 6.5 4.5"
         rotation="0 0 0">
       </a-entity>
     </a-scene>
 
-    <!-- Hit button -->
     <button id="hitButton">H</button>
 
-    <!-- Minimal joystick -->
     <div id="joystickContainer">
       <div id="joystick"></div>
     </div>
 
-
-    <!-- Audio -->
     <audio id="hitSound" src="golf-13-94165.mp3" preload="auto"></audio>
     <audio id="targetSound" src="goodresult-82807.mp3" preload="auto"></audio>
 
     <script>
-
       const ball = document.querySelector("#ball");
       const stick = document.querySelector("#stick");
       const cameraRig = document.querySelector("#cameraRig");
@@ -154,7 +227,6 @@
       let score = 0;
       const target = 80;
 
-      // Check if user has already seen instructions
       let instructionsSeen = localStorage.getItem('instructionsSeen') === 'true';
 
       function showInstruction(text) {
@@ -169,7 +241,6 @@
       }
 
       stick.addEventListener("model-loaded", () => {
-        console.log("✅ Golf stick model loaded successfully!");
         if(!instructionsSeen) showInstruction('Step 1: Click "H" button or press H key to hit the golf ball.');
       });
 
@@ -184,10 +255,6 @@
       function hitBall() {
         hitSound.currentTime = 0;
         hitSound.play();
-
-        ball.removeAttribute("animation__move");
-        ball.removeAttribute("animation__rotate");
-        stick.removeAttribute("animation__swing");
 
         stick.setAttribute("animation__swing", {
           property: "position",
@@ -211,81 +278,68 @@
           easing: "linear"
         });
 
-        // Fade instruction after first action
         if(!instructionsSeen){
-          setTimeout(fadeInstruction, 1000); // fade 1 sec after hitting
+          setTimeout(fadeInstruction, 1000);
           localStorage.setItem('instructionsSeen', 'true');
           instructionsSeen = true;
         }
 
-
-  setTimeout(() => {
+        setTimeout(() => {
           score += 20;
           scoreboardHUD.textContent = `Score: ${score} | Target: ${target}`;
 
           if (score >= target) {
-            targetSound.currentTime = 0;
             targetSound.play();
-            alert("🎉 You've reached the target of 80 points! 🎊");
+            alert("🎉 You've reached the target of 80 points!");
             resetScene();
-          } else {
-            resetScene();
-          }
-        }, 3100); // slightly longer timeout to match ball animation
+          } else resetScene();
+        }, 3100);
       }
 
-
-      document.addEventListener("keydown", (e) => {
+      document.addEventListener("keydown", e => {
         if (e.code === "Space" || e.key === "h" || e.key === "H") hitBall();
       });
-      document.querySelector("#hitButton").addEventListener("click", hitBall);
+      document.getElementById("hitButton").addEventListener("click", hitBall);
 
-      // Joystick movement logic
-      // -----------------------------
       const joystickContainer = document.getElementById("joystickContainer");
       const joystick = document.getElementById("joystick");
       let dragging = false;
-      let centerX = joystickContainer.offsetWidth/2;
-      let centerY = joystickContainer.offsetHeight/2;
-      let maxRadius = joystickContainer.offsetWidth/2 - joystick.offsetWidth/2;
+      let centerX = joystickContainer.offsetWidth / 2;
+      let centerY = joystickContainer.offsetHeight / 2;
+      let maxRadius = joystickContainer.offsetWidth / 2 - joystick.offsetWidth / 2;
 
-      function setJoystickPosition(x, y){
+      function setJoystickPosition(x, y) {
         joystick.style.transform = `translate(${x}px, ${y}px)`;
       }
 
-      function handleMove(clientX, clientY){
+      function handleMove(x, y) {
         const rect = joystickContainer.getBoundingClientRect();
-        let dx = clientX - rect.left - centerX;
-        let dy = clientY - rect.top - centerY;
+        let dx = x - rect.left - centerX;
+        let dy = y - rect.top - centerY;
+        const dist = Math.hypot(dx, dy);
 
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if(dist > maxRadius){
+        if (dist > maxRadius) {
           dx = dx / dist * maxRadius;
           dy = dy / dist * maxRadius;
         }
 
         setJoystickPosition(dx, dy);
-
-        // Free movement with forward/backward corrected
-        const speed = 0.05;
-        cameraRig.object3D.position.x += dx / maxRadius * speed;
-        cameraRig.object3D.position.z += dy / maxRadius * speed;
+        cameraRig.object3D.position.x += dx / maxRadius * 0.05;
+        cameraRig.object3D.position.z += dy / maxRadius * 0.05;
       }
 
-      joystick.addEventListener("pointerdown", ()=>{ dragging = true; });
-      document.addEventListener("pointermove", (e)=>{
-        if(dragging) handleMove(e.clientX, e.clientY);
-      });
-      document.addEventListener("pointerup", ()=>{
+      joystick.addEventListener("pointerdown", () => dragging = true);
+      document.addEventListener("pointermove", e => dragging && handleMove(e.clientX, e.clientY));
+      document.addEventListener("pointerup", () => {
         dragging = false;
         setJoystickPosition(0,0);
       });
-    </script>
 
-  
+      // Remove intro overlay safely
+      setTimeout(() => {
+        const intro = document.getElementById("introOverlay");
+        if (intro) intro.remove();
+      }, 6500);
+    </script>
   </body>
 </html>
-
-
-
-
